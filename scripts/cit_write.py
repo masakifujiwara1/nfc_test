@@ -26,16 +26,16 @@ def connected(tag):
       
       # 学籍番号出力
       sc = nfc.tag.tt3.ServiceCode(service_code >> 6, service_code & 0x3f)
-      print("sc: "+ str(sc))
+      # print("sc: "+ str(sc))
       bc = nfc.tag.tt3.BlockCode(2,service=0)
-      print("bc: "+str(bc))
+      # print("bc: "+str(bc))
       feli_data = tag.read_without_encryption([sc],[bc])
-      print(feli_data[0:8])
+      # print(feli_data[0:8])
     #   print(feli_data)
       gakuban = feli_data[0:7].decode()
       # def側学番出力
       # print("gakuban:" + gakuban)
-      write()
+      # write()
     except Exception as e:
       print("error: %s" % e)
   else:
@@ -43,21 +43,28 @@ def connected(tag):
   
 def write():
 
-    if not gakuban == "未検出":
-      date_now = datetime.datetime.now()
-      now = date_now.strftime('%H:%M:%S')
-      line = [str(now), str(gakuban)]
-      with open('csv/' + str(dt_create_file) + '.csv', 'a') as f:
-        writer = csv.writer(f, lineterminator='\n')
-        writer.writerow(line)
+  if not gakuban == "未検出":
+    date_now = datetime.datetime.now()
+    now = date_now.strftime('%H:%M:%S')
+    line = [str(now), str(gakuban)]
+    with open('csv/' + str(dt_create_file) + '.csv', 'a') as f:
+      writer = csv.writer(f, lineterminator='\n')
+      writer.writerow(line)
+  
+  return now
 
 while True:
   with nfc.ContactlessFrontend('usb') as m:
     try:
       tag = m.connect(rdwr={'on-connect': connected})
+      now = write()
     except:
-      print("more slowly")
+      print("status: error")
+      print("more slowly\n")
     # ループ側学番出力
-    print("main gakunow: "+ gakuban)
+    if not gakuban == "未検出":
+      print("status: ok")
+      print("time: " + now)
+      print("gakuban: "+ gakuban + "\n")
     gakuban = "未検出"
     time.sleep(2)
