@@ -2,11 +2,12 @@ import nfc
 import time
 
 service_code = 0x100b
+gakuban = "未検出"
 
 def connected(tag):
   # 内容を16進数で出力する
-  print("dump felica.")
-  print('  ' + '\n  '.join(tag.dump()))
+  # print("dump felica.")
+  # print('  ' + '\n  '.join(tag.dump()))
   #システムコード指定
   idm, pmm = tag.polling(system_code=0x81E1)
   tag.idm, tag.pmm, tag.sys = idm, pmm, 0x81E1
@@ -34,7 +35,11 @@ def connected(tag):
 
 while True:
   with nfc.ContactlessFrontend('usb') as m:
-    tag = m.connect(rdwr={'on-connect': connected})
+    try:
+      tag = m.connect(rdwr={'on-connect': connected})
+    except:
+      print("more slowly")
     # ループ側学番出力
     print("main gakunow: "+ gakuban)
-    time.sleep(1)
+    gakuban = "未検出"
+    time.sleep(2)
